@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Profile</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #F8F7F4; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 3rem 1rem; }
+  .card { background: #fff; border-radius: 16px; border: 0.5px solid #E0DED8; padding: 2.5rem; max-width: 600px; width: 100%; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: #888780; margin-bottom: 6px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: #1a1a1a; line-height: 1.25; margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: #5F5E5A; line-height: 1.6; margin-bottom: 1.75rem; }
+  .field-label { font-size: 12px; font-weight: 500; color: #5F5E5A; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 6px; }
+  .field-input { width: 100%; padding: 10px 14px; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1a1a1a; background: #fff; margin-bottom: 1.25rem; }
+  .field-input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 3px #EEEDFE; }
+  textarea.field-input { resize: vertical; min-height: 90px; line-height: 1.6; }
+  .select-wrap { position: relative; margin-bottom: 1.25rem; }
+  .select-wrap select { width: 100%; padding: 10px 14px; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1a1a1a; background: #fff; appearance: none; cursor: pointer; }
+  .select-wrap select:focus { outline: none; border-color: #7F77DD; }
+  .select-wrap::after { content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-top-color: #888780; pointer-events: none; }
+  .btn { width: 100%; padding: 13px; background: #3C3489; color: #EEEDFE; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; }
+  .btn:hover { background: #534AB7; }
+  .btn:disabled { background: #F1EFE8; color: #B4B2A9; cursor: not-allowed; }
+  .btn-outline { width: 100%; padding: 11px; background: transparent; color: #1a1a1a; border: 0.5px solid #D3D1C7; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; margin-top: 10px; }
+  .btn-outline:hover { background: #F8F7F4; }
+  .err { background: #FCEBEB; border: 0.5px solid #F7C1C1; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #791F1F; margin-bottom: 1rem; display: none; }
+  .nudge { background: #F8F7F4; border-left: 3px solid #1D9E75; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 1.5rem; font-size: 13px; color: #5F5E5A; line-height: 1.55; }
+  .nudge strong { color: #1a1a1a; font-weight: 500; }
+  .avatar { width: 52px; height: 52px; border-radius: 50%; background: #EEEDFE; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 16px; color: #3C3489; flex-shrink: 0; }
+  .student-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid #E0DED8; }
+  .progress-bar { height: 3px; background: #E0DED8; border-radius: 2px; margin-bottom: 2rem; }
+  .progress-fill { height: 100%; background: #3C3489; border-radius: 2px; transition: width .3s; }
+  .divider { border: none; border-top: 0.5px solid #E0DED8; margin: 1.5rem 0; }
+  .success-wrap { text-align: center; padding: 2rem 0; }
+  .success-icon { width: 60px; height: 60px; border-radius: 50%; background: #EAF3DE; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+  .success-icon i { font-size: 30px; color: #3B6D11; }
+  .loading-wrap { text-align: center; padding: 3rem 0; color: #888780; font-size: 14px; }
+  .loading-wrap i { font-size: 28px; margin-bottom: 10px; display: block; color: #B4B2A9; }
+  .returning-badge { display: inline-flex; align-items: center; gap: 6px; background: #E1F5EE; color: #0F6E56; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Loading -->
+  <div class="step active" id="step-loading">
+    <div class="loading-wrap">
+      <i class="ti ti-loader-2"></i>
+      Loading class roster…
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="step" id="step-login">
+    <p class="eyebrow">Student profile</p>
+    <h1>Welcome!</h1>
+    <p class="subtitle">Find your name and enter your student ID to get started. You can update your profile anytime.</p>
+
+    <label class="field-label" for="student-select">Your name</label>
+    <div class="select-wrap">
+      <select id="student-select">
+        <option value="">— Select your name —</option>
+      </select>
+    </div>
+
+    <label class="field-label" for="id-input">Student ID</label>
+    <input class="field-input" type="text" id="id-input" placeholder="Enter your student ID" style="margin-bottom:0">
+
+    <div class="err" id="login-err" style="margin-top:1rem"></div>
+
+    <div style="margin-top:1.25rem">
+      <button class="btn" onclick="verifyLogin()">
+        <i class="ti ti-arrow-right"></i>
+        Continue
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile form -->
+  <div class="step" id="step-form">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+    <div class="student-header">
+      <div class="avatar" id="form-avatar"></div>
+      <div>
+        <div id="returning-badge" style="display:none" class="returning-badge"><i class="ti ti-refresh" style="font-size:13px"></i> Updating existing profile</div>
+        <p style="font-weight:500;font-size:16px;color:#1a1a1a" id="form-name"></p>
+        <p style="font-size:13px;color:#5F5E5A" id="form-id"></p>
+      </div>
+    </div>
+
+    <p class="eyebrow">Tell us about yourself</p>
+    <h1 style="font-size:22px;margin-bottom:8px">Your profile</h1>
+    <p class="subtitle">Help your instructor get to know you. All fields are optional but the more you share, the better!</p>
+
+    <label class="field-label" for="f-interests">Personal interests & hobbies</label>
+    <input class="field-input" type="text" id="f-interests" placeholder="e.g. hiking, photography, gaming, cooking…" oninput="updateProgress()">
+
+    <label class="field-label" for="f-why">Why are you taking this class?</label>
+    <textarea class="field-input" id="f-why" placeholder="What drew you to this course?" oninput="updateProgress()"></textarea>
+
+    <label class="field-label" for="f-experience">Prior experience with the subject</label>
+    <textarea class="field-input" id="f-experience" placeholder="Any relevant background, courses, or work experience?" oninput="updateProgress()"></textarea>
+
+    <label class="field-label" for="f-goals">Career goals</label>
+    <textarea class="field-input" id="f-goals" placeholder="Where do you hope this takes you?" oninput="updateProgress()"></textarea>
+
+    <label class="field-label" for="f-fun">Something fun or unexpected about you</label>
+    <input class="field-input" type="text" id="f-fun" placeholder="Surprise us!" oninput="updateProgress()">
+
+    <div class="divider"></div>
+
+    <div class="err" id="form-err"></div>
+
+    <button class="btn" id="submit-btn" onclick="submitProfile()">
+      <i class="ti ti-send"></i>
+      Save profile
+    </button>
+    <button class="btn-outline" onclick="showStep('step-login')">
+      <i class="ti ti-arrow-left"></i>
+      Back
+    </button>
+  </div>
+
+  <!-- Done -->
+  <div class="step" id="step-done">
+    <div class="success-wrap">
+      <div class="success-icon"><i class="ti ti-check"></i></div>
+      <h1 style="font-size:24px;margin-bottom:8px">Profile saved!</h1>
+      <p style="font-size:14px;color:#5F5E5A;line-height:1.6;margin-bottom:2rem" id="done-msg"></p>
+      <button class="btn" style="max-width:220px;margin:0 auto" onclick="showStep('step-login')">
+        <i class="ti ti-edit"></i>
+        Update my profile
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// !! Replace with your Apps Script URL !!
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEQU5X8HWFfEJrCujmKYEJ1jcTe-nNJv4tzyOvfCg7-P0vgKqT5wrx6SL145twQPiq/exec';
+
+let students = [];
+let currentStudent = null;
+
+function showStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function loadRoster() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=get_roster');
+    const data = await res.json();
+    students = data.students || [];
+    const sel = document.getElementById('student-select');
+    students.forEach((s, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = s.name;
+      sel.appendChild(opt);
+    });
+    showStep('step-login');
+  } catch(e) {
+    document.getElementById('step-loading').innerHTML =
+      '<div style="text-align:center;padding:3rem 0;color:#791F1F;font-size:14px"><i class="ti ti-alert-circle" style="font-size:28px;display:block;margin-bottom:10px"></i>Could not load the class roster. Please check the Apps Script URL in this file.</div>';
+  }
+}
+
+function verifyLogin() {
+  const idx = document.getElementById('student-select').value;
+  const enteredId = document.getElementById('id-input').value.trim();
+  const errEl = document.getElementById('login-err');
+  if (idx === '' || !enteredId) {
+    errEl.textContent = 'Please select your name and enter your student ID.';
+    errEl.style.display = 'block'; return;
+  }
+  const s = students[idx];
+  if (String(enteredId) !== String(s.id)) {
+    errEl.textContent = "ID doesn't match. Please double-check and try again.";
+    errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+  currentStudent = s;
+  const initials = s.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('form-avatar').textContent = initials;
+  document.getElementById('form-name').textContent = s.name;
+  document.getElementById('form-id').textContent = 'Student ID: ' + s.id;
+  const isReturning = s.submitted;
+  document.getElementById('returning-badge').style.display = isReturning ? 'inline-flex' : 'none';
+  document.getElementById('f-interests').value = s.interests || '';
+  document.getElementById('f-why').value = s.why_taking || '';
+  document.getElementById('f-experience').value = s.prior_experience || '';
+  document.getElementById('f-goals').value = s.career_goals || '';
+  document.getElementById('f-fun').value = s.fun_fact || '';
+  updateProgress();
+  showStep('step-form');
+}
+
+function updateProgress() {
+  const fields = ['f-interests','f-why','f-experience','f-goals','f-fun'];
+  const filled = fields.filter(id => document.getElementById(id).value.trim()).length;
+  document.getElementById('prog').style.width = Math.round((filled / fields.length) * 100) + '%';
+}
+
+async function submitProfile() {
+  const btn = document.getElementById('submit-btn');
+  const errEl = document.getElementById('form-err');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Saving…';
+  const payload = {
+    action: 'save_profile',
+    name: currentStudent.name,
+    student_id: currentStudent.id,
+    timestamp: new Date().toISOString(),
+    interests: document.getElementById('f-interests').value.trim(),
+    why_taking: document.getElementById('f-why').value.trim(),
+    prior_experience: document.getElementById('f-experience').value.trim(),
+    career_goals: document.getElementById('f-goals').value.trim(),
+    fun_fact: document.getElementById('f-fun').value.trim()
+  };
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    currentStudent.submitted = true;
+    document.getElementById('done-msg').textContent =
+      'Thanks, ' + currentStudent.name.split(' ')[0] + '! Your instructor can now get to know you a little better. You can come back and update this anytime.';
+    showStep('step-done');
+  } catch(e) {
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-send"></i> Save profile';
+}
+
+loadRoster();
+</script>
+</body>
+</html>
